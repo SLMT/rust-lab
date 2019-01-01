@@ -1,16 +1,15 @@
 extern crate piston_window;
-extern crate shader_version;
 
-use shader_version::OpenGL;
 use piston_window::{WindowSettings, PistonWindow};
 use piston_window::{Event, Input, Loop};
 use piston_window::TextureSettings;
 use piston_window::Glyphs;
 use piston_window::Transformed;
 use piston_window::{clear, text};
+use piston_window::OpenGL;
 
 const OPENGL_VERSION: OpenGL = OpenGL::V4_5;
-const FONT_PATH: &'static str = "./assets/fonts/GenSenMaruGothicTW-Regular.ttf";
+const FONT_PATH: &'static str = "./assets/fonts/NotoSans-Regular.ttf";
 
 fn main() {
     // Build a window
@@ -37,7 +36,7 @@ fn main() {
                 // Render the screen
                 window.draw_2d(&event, |context, gl| {
                     clear([0.0, 0.0, 0.0, 1.0], gl);
-                    text([1.0, 1.0, 1.0, 1.0], 32, "源泉圓體：測試貓貓、Alpha、Delta", 
+                    text([1.0, 1.0, 1.0, 1.0], 32, "Test Meow", 
                         &mut glyph_cache,
                         context.trans(300.0, 400.0).transform, gl)
                         .expect("drawing text fails");

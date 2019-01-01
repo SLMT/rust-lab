@@ -7,8 +7,9 @@ edition = "2018"
 [dependencies]
 piston = "0.39.0"
 piston_window = "0.85.0"
-shader_version = "0.3.0"
 piston2d-opengl_graphics = "0.57.0"
+conrod_core = "0.62.0"
+conrod_piston = "0.62.0"
 
 [dependencies.piston2d-graphics]
 version = "*"
