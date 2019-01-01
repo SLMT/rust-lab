@@ -25,6 +25,10 @@ An example of drawing text in traditional chinese (Taiwan) on a piston window. I
 Source: `src\bin\draw_zhtw_text.rs`
 To execute: `cargo run --bin draw_zhtw_text`
 
+Reference:
+- [The Zh-TW Font: gensen-font (源泉圓體)][6]
+- [The referenced game project: colonize][7]
+
 ### Conrod GUI
 
 To test if I can draw something using Piston while rendering GUI using [Conrod][2] at the same time. **However, due to lack of tutorials, I cannot make it work properly for now.**
@@ -42,3 +46,5 @@ Reference:
 [3]: https://docs.rs/conrod_core/0.62.0/conrod_core/
 [4]: https://docs.rs/conrod_piston/0.62.0/conrod_piston/
 [5]: https://github.com/PistonDevelopers/conrod/blob/master/backends/conrod_piston/examples/all_piston_window.rs
+[6]: https://github.com/ButTaiwan/gensen-font
+[7]: https://github.com/indiv0/colonize
