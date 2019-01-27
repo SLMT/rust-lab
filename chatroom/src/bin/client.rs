@@ -19,7 +19,7 @@ fn main() {
 
     let mut input = String::new();
     loop {
-        // Show the leading characters
+        // Show the promot characters
         print!("> ");
         stdout().flush().expect("flush error");
 

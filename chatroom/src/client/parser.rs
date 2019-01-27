@@ -1,6 +1,4 @@
 
-use std::str::Split;
-
 use super::super::protocol::command::Command;
 
 // TODO: Find a better way (make it dynamic)
@@ -39,11 +37,13 @@ Exit\r\n\
 \t[E]\r\n";
 
 pub fn parse(input: &str) -> Result<Command, String> {
-    let mut tokens = input.split(' ');
+    let mut tokens = input.split(' ')
+        .filter(|s| !s.is_empty()) // avoid empty token
+        .map(|s| s.trim()); // remove '\n'
 
     match tokens.next() {
         Some(token) => {
-            let token = token.trim().to_uppercase();
+            let token = token.to_uppercase();
             match token.as_str() {
                 "NA" => new_account(&mut tokens),
                 "DA" => Ok(Command::DeleteAccount),
@@ -70,81 +70,147 @@ pub fn parse(input: &str) -> Result<Command, String> {
 
 // TODO: use macro! to avoid duplicate code
 
-fn new_account(tokens: &mut Split<char>) -> Result<Command, String> {
+fn new_account<'a, 'b, I>(tokens: &'a mut I) -> Result<Command, String> 
+        where I: Iterator<Item = &'b str> {
     let account = read_string_token(tokens, "account name")?;
     let password = read_string_token(tokens, "password")?;
     
     Ok(Command::NewAccount {name: account, password: password})
 }
 
-fn login(tokens: &mut Split<char>) -> Result<Command, String> {
+fn login<'a, 'b, I>(tokens: &'a mut I) -> Result<Command, String> 
+        where I: Iterator<Item = &'b str> {
     let account = read_string_token(tokens, "account name")?;
     let password = read_string_token(tokens, "password")?;
 
     Ok(Command::LogIn {name: account, password: password})
 }
 
-fn new_room(tokens: &mut Split<char>) -> Result<Command, String> {
+fn new_room<'a, 'b, I>(tokens: &'a mut I) -> Result<Command, String> 
+        where I: Iterator<Item = &'b str> {
     let room_name = read_string_token(tokens, "room name")?;
 
     Ok(Command::NewRoom(room_name))
 }
 
-fn join_room(tokens: &mut Split<char>) -> Result<Command, String> {
+fn join_room<'a, 'b, I>(tokens: &'a mut I) -> Result<Command, String> 
+        where I: Iterator<Item = &'b str> {
     let room_name = read_string_token(tokens, "room name")?;
 
     Ok(Command::JoinRoom(room_name))
 }
 
-fn send_message(tokens: &mut Split<char>) -> Result<Command, String> {
+fn send_message<'a, 'b, I>(tokens: &'a mut I) -> Result<Command, String> 
+        where I: Iterator<Item = &'b str> {
     // concat the rest of tokens as a string
     let message = tokens.collect::<Vec<&str>>().join(" ");
 
     Ok(Command::Message(message))
 }
 
-fn private_message(tokens: &mut Split<char>) -> Result<Command, String> {
+fn private_message<'a, 'b, I>(tokens: &'a mut I) -> Result<Command, String> 
+        where I: Iterator<Item = &'b str> {
     let user_name = read_string_token(tokens, "user name")?;
     let message = tokens.collect::<Vec<&str>>().join(" ");
 
     Ok(Command::PrivateMessage {user_name: user_name, message: message})
 }
 
-fn new_friend(tokens: &mut Split<char>) -> Result<Command, String> {
+fn new_friend<'a, 'b, I>(tokens: &'a mut I) -> Result<Command, String> 
+        where I: Iterator<Item = &'b str> {
     let user_name = read_string_token(tokens, "user name")?;
 
     Ok(Command::AddFriend(user_name))
 }
 
-fn delete_friend(tokens: &mut Split<char>) -> Result<Command, String> {
+fn delete_friend<'a, 'b, I>(tokens: &'a mut I) -> Result<Command, String> 
+        where I: Iterator<Item = &'b str> {
     let user_name = read_string_token(tokens, "user name")?;
 
     Ok(Command::DeleteFriend(user_name))
 }
 
-fn block_user(tokens: &mut Split<char>) -> Result<Command, String> {
+fn block_user<'a, 'b, I>(tokens: &'a mut I) -> Result<Command, String> 
+        where I: Iterator<Item = &'b str> {
     let user_name = read_string_token(tokens, "user name")?;
 
     Ok(Command::BlockUser(user_name))
 }
 
-fn unblock_user(tokens: &mut Split<char>) -> Result<Command, String> {
+fn unblock_user<'a, 'b, I>(tokens: &'a mut I) -> Result<Command, String> 
+        where I: Iterator<Item = &'b str> {
     let user_name = read_string_token(tokens, "user name")?;
 
     Ok(Command::UnblockUser(user_name))
 }
 
-fn query_user(tokens: &mut Split<char>) -> Result<Command, String> {
+fn query_user<'a, 'b, I>(tokens: &'a mut I) -> Result<Command, String> 
+        where I: Iterator<Item = &'b str> {
     let user_name = read_string_token(tokens, "user name")?;
 
     Ok(Command::QueryUser(user_name))
 }
 
-fn read_string_token(tokens: &mut Split<char>, token_name: &str) -> Result<String, String> {
+fn read_string_token<'a, 'b, 'c, I>(tokens: &'a mut I, token_name: &'b str) 
+        -> Result<String, String>
+        where I: Iterator<Item = &'c str> {
     match tokens.next() {
         Some(s) => Ok(s.to_string()),
         None => Err(format!("You missed the {}.", token_name))
     }
 }
 
-// TODO: test cases for each command (especially the message)
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse_new_account() {
+        let command = parse("NA cat meow");
+
+        assert_eq!(command, Ok(Command::NewAccount {
+            name: format!("cat"), password: format!("meow")}));
+    }
+
+    #[test]
+    fn parse_string_with_consecutive_spaces() {
+        let command = parse("NA cat       meow");
+
+        assert_eq!(command, Ok(Command::NewAccount {
+            name: format!("cat"), password: format!("meow")}));
+    }
+
+    #[test]
+    fn parse_string_with_new_line() {
+        let command = parse("NA cat meow\n");
+
+        assert_eq!(command, Ok(Command::NewAccount {
+            name: format!("cat"), password: format!("meow")}));
+    }
+
+    #[test]
+    fn parse_message() {
+        let command = parse("S hello! how are you?");
+
+        assert_eq!(command, Ok(Command::Message(
+            format!("hello! how are you?")
+        )));
+    }
+
+    #[test]
+    fn parse_private_message() {
+        let command = parse("PM cat hello! how are you?");
+
+        assert_eq!(command, Ok(Command::PrivateMessage{
+            user_name: format!("cat"),
+            message: format!("hello! how are you?")}
+        ));
+    }
+
+    #[test]
+    fn bad_command() {
+        let command = parse("HAHA cat");
+
+        assert!(command.is_err());
+    }
+}
