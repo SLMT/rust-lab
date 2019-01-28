@@ -70,90 +70,90 @@ pub fn parse(input: &str) -> Result<Command, String> {
 
 // TODO: use macro! to avoid duplicate code
 
-fn new_account<'a, 'b, I>(tokens: &'a mut I) -> Result<Command, String> 
-        where I: Iterator<Item = &'b str> {
+fn new_account<'a, I>(tokens: &mut I) -> Result<Command, String> 
+        where I: Iterator<Item = &'a str> {
     let account = read_string_token(tokens, "account name")?;
     let password = read_string_token(tokens, "password")?;
     
     Ok(Command::NewAccount {name: account, password: password})
 }
 
-fn login<'a, 'b, I>(tokens: &'a mut I) -> Result<Command, String> 
-        where I: Iterator<Item = &'b str> {
+fn login<'a, I>(tokens: &mut I) -> Result<Command, String> 
+        where I: Iterator<Item = &'a str> {
     let account = read_string_token(tokens, "account name")?;
     let password = read_string_token(tokens, "password")?;
 
     Ok(Command::LogIn {name: account, password: password})
 }
 
-fn new_room<'a, 'b, I>(tokens: &'a mut I) -> Result<Command, String> 
-        where I: Iterator<Item = &'b str> {
+fn new_room<'a, I>(tokens: &mut I) -> Result<Command, String> 
+        where I: Iterator<Item = &'a str> {
     let room_name = read_string_token(tokens, "room name")?;
 
     Ok(Command::NewRoom(room_name))
 }
 
-fn join_room<'a, 'b, I>(tokens: &'a mut I) -> Result<Command, String> 
-        where I: Iterator<Item = &'b str> {
+fn join_room<'a, I>(tokens: &mut I) -> Result<Command, String> 
+        where I: Iterator<Item = &'a str> {
     let room_name = read_string_token(tokens, "room name")?;
 
     Ok(Command::JoinRoom(room_name))
 }
 
-fn send_message<'a, 'b, I>(tokens: &'a mut I) -> Result<Command, String> 
-        where I: Iterator<Item = &'b str> {
+fn send_message<'a, I>(tokens: &mut I) -> Result<Command, String> 
+        where I: Iterator<Item = &'a str> {
     // concat the rest of tokens as a string
     let message = tokens.collect::<Vec<&str>>().join(" ");
 
     Ok(Command::Message(message))
 }
 
-fn private_message<'a, 'b, I>(tokens: &'a mut I) -> Result<Command, String> 
-        where I: Iterator<Item = &'b str> {
+fn private_message<'a, I>(tokens: &mut I) -> Result<Command, String> 
+        where I: Iterator<Item = &'a str> {
     let user_name = read_string_token(tokens, "user name")?;
     let message = tokens.collect::<Vec<&str>>().join(" ");
 
     Ok(Command::PrivateMessage {user_name: user_name, message: message})
 }
 
-fn new_friend<'a, 'b, I>(tokens: &'a mut I) -> Result<Command, String> 
-        where I: Iterator<Item = &'b str> {
+fn new_friend<'a, I>(tokens: &mut I) -> Result<Command, String> 
+        where I: Iterator<Item = &'a str> {
     let user_name = read_string_token(tokens, "user name")?;
 
     Ok(Command::AddFriend(user_name))
 }
 
-fn delete_friend<'a, 'b, I>(tokens: &'a mut I) -> Result<Command, String> 
-        where I: Iterator<Item = &'b str> {
+fn delete_friend<'a, I>(tokens: &mut I) -> Result<Command, String> 
+        where I: Iterator<Item = &'a str> {
     let user_name = read_string_token(tokens, "user name")?;
 
     Ok(Command::DeleteFriend(user_name))
 }
 
-fn block_user<'a, 'b, I>(tokens: &'a mut I) -> Result<Command, String> 
-        where I: Iterator<Item = &'b str> {
+fn block_user<'a, I>(tokens: &mut I) -> Result<Command, String> 
+        where I: Iterator<Item = &'a str> {
     let user_name = read_string_token(tokens, "user name")?;
 
     Ok(Command::BlockUser(user_name))
 }
 
-fn unblock_user<'a, 'b, I>(tokens: &'a mut I) -> Result<Command, String> 
-        where I: Iterator<Item = &'b str> {
+fn unblock_user<'a, I>(tokens: &mut I) -> Result<Command, String> 
+        where I: Iterator<Item = &'a str> {
     let user_name = read_string_token(tokens, "user name")?;
 
     Ok(Command::UnblockUser(user_name))
 }
 
-fn query_user<'a, 'b, I>(tokens: &'a mut I) -> Result<Command, String> 
-        where I: Iterator<Item = &'b str> {
+fn query_user<'a, I>(tokens: &mut I) -> Result<Command, String> 
+        where I: Iterator<Item = &'a str> {
     let user_name = read_string_token(tokens, "user name")?;
 
     Ok(Command::QueryUser(user_name))
 }
 
-fn read_string_token<'a, 'b, 'c, I>(tokens: &'a mut I, token_name: &'b str) 
+fn read_string_token<'a, I>(tokens: &mut I, token_name: &str) 
         -> Result<String, String>
-        where I: Iterator<Item = &'c str> {
+        where I: Iterator<Item = &'a str> {
     match tokens.next() {
         Some(s) => Ok(s.to_string()),
         None => Err(format!("You missed the {}.", token_name))
