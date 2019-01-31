@@ -1,5 +1,6 @@
 
-#[derive(Debug, PartialEq, Eq)]
+// TODO: Maybe we can make Command use &str instead of String
+#[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub enum Command {
     // Accounts
     NewAccount {name: String, password: String},
@@ -28,7 +29,18 @@ pub enum Command {
 
     // Query
     QueryUser(String),
-    Help(&'static str),
+    Help(String),
     
     Exit
+}
+
+impl Command {
+    pub fn serialize(&self) -> Vec<u8> {
+        bincode::serialize(self)
+            .expect(format!("fails to serialize {:?}", self).as_str())
+    }
+
+    pub fn deserialize(data: &[u8]) -> Command {
+        bincode::deserialize(data).expect("fails to deserialize")
+    }
 }

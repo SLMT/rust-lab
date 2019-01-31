@@ -59,7 +59,7 @@ pub fn parse(input: &str) -> Result<Command, String> {
                 "NB" => block_user(&mut tokens),
                 "DB" => unblock_user(&mut tokens),
                 "Q" => query_user(&mut tokens),
-                "H" => Ok(Command::Help(HELP_MSG)),
+                "H" => Ok(Command::Help(HELP_MSG.to_string())),
                 "E" => Ok(Command::Exit),
                 _ => Err(format!("No such command"))
             }

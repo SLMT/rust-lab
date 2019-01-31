@@ -87,8 +87,8 @@ fn handle_user_input(mut stream: &TcpStream) {
         if let Command::Help(msg) = command {
             println!("{}", msg);
         } else {
-            // TODO: Send the command
-            stream.write(format!("{:?}", command).as_bytes()).expect("writing fails");
+            let bytes = command.serialize();
+            stream.write(&bytes).expect("writing fails");
             stream.flush().expect("flushing fails");
             dbg!(command);
         }
