@@ -60,12 +60,14 @@ fn handle_server_response(mut stream: &TcpStream) {
 
     loop {
         stream.read_to_string(&mut buffer).expect("cannot receive response");
-        println!("Server: {}", buffer);
-        buffer.clear();
+        if buffer.len() > 0 {
+            println!("Server: {}", buffer);
+            buffer.clear();
+        }
     }
 }
 
-fn handle_user_input(mut stream: &TcpStream) {
+fn handle_user_input(stream: &TcpStream) {
     let mut input = String::new();
     loop {
         // Show the promot characters
@@ -87,9 +89,7 @@ fn handle_user_input(mut stream: &TcpStream) {
         if let Command::Help(msg) = command {
             println!("{}", msg);
         } else {
-            let bytes = command.serialize();
-            stream.write(&bytes).expect("writing fails");
-            stream.flush().expect("flushing fails");
+            command.write_to_stream(stream).expect("writing fails");
             dbg!(command);
         }
     }
