@@ -1,6 +1,5 @@
 
-use std::net::TcpStream;
-use std::io::{Read, Write, Result};
+use std::io::{Read, Write, Result, ErrorKind};
 
 // TODO: Maybe we can make Command use &str instead of String
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
@@ -66,7 +65,16 @@ impl Command {
         
         // Read the length
         let mut len_bytes: [u8; 8] = [0; 8];
-        stream.read_exact(&mut len_bytes)?;
+        match stream.read_exact(&mut len_bytes) {
+            Ok(_) => {},
+            Err(e) => {
+                if e.kind() == ErrorKind::UnexpectedEof {
+                    return Ok(Command::Exit);
+                } else {
+                    return Err(e);
+                }
+            }
+        }
         let data_len = usize::from_be_bytes(len_bytes);
 
         // Ensure the size of the buffer

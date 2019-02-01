@@ -7,6 +7,8 @@ use super::protocol::command::Command;
 
 mod data;
 
+// TODO: Use logging, instead of println!
+
 pub fn run_server(ip: &str, port: u16) {
     println!("The server is initializing...");
 
@@ -34,6 +36,13 @@ fn handle_client_connection(stream: TcpStream) {
     loop {
         let command = Command::read_from_stream(&stream, &mut read_buf)
         .expect("fails to read a command");
-        dbg!(command);
+        dbg!(&command);
+
+        if command == Command::Exit {
+            break;
+        }
     }
+
+    println!("The client {} disconnected.",
+            stream.peer_addr().expect("fails to parse a address."));
 }
